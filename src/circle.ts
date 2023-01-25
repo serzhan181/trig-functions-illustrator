@@ -1,4 +1,9 @@
-import { CENTER, Pos } from "./main";
+import { Pos } from "./main";
+import colors from "tailwindcss/colors";
+
+const SIN_COLOR = colors.red[600];
+const COS_COLOR = colors.blue[600];
+const BACIC_COLOR = colors.neutral[900];
 
 export class Circle {
   x: number;
@@ -6,26 +11,16 @@ export class Circle {
 
   constructor(
     private ctx: CanvasRenderingContext2D,
-    public at: Pos | "center",
+    public at: Pos,
     public radius: number
   ) {
-    let x, y;
-
-    if (typeof at === "string" && at === "center") {
-      x = CENTER.x;
-      y = CENTER.y;
-    } else {
-      x = at.x;
-      y = at.y;
-    }
-
-    this.x = x;
-    this.y = y;
+    this.x = at.x;
+    this.y = at.y;
   }
 
   draw() {
     this.ctx.beginPath();
-    this.ctx.strokeStyle = "black";
+    this.ctx.strokeStyle = BACIC_COLOR;
     this.ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
 
     this.ctx.stroke();
@@ -33,7 +28,7 @@ export class Circle {
 
   private draw_point(x: number, y: number) {
     this.ctx.beginPath();
-    this.ctx.arc(x, y, this.radius * 0.03, 0, 2 * Math.PI, true);
+    this.ctx.arc(x, y, this.radius * 0.03, 0, 2 * Math.PI);
     this.ctx.fill();
   }
 
@@ -41,14 +36,18 @@ export class Circle {
     this.draw_point(this.x, this.y);
   }
 
-  point_at_angle(theta: number) {
+  point_at_angle(theta: number, with_right_triangle: boolean) {
     const edge_x = this.radius * Math.cos(theta);
-    const edge_y = this.radius * Math.sin(theta);
+    const edge_y = this.radius * Math.sin(-theta);
     this.draw_point(this.x + edge_x, this.y + edge_y);
 
+    if (with_right_triangle) this.right_triangle(edge_x, edge_y);
+  }
+
+  right_triangle(edge_x: number, edge_y: number) {
     // side adjacent (cos)
     this.ctx.beginPath();
-    this.ctx.strokeStyle = "blue";
+    this.ctx.strokeStyle = COS_COLOR;
     this.ctx.moveTo(this.x, this.y);
     this.ctx.lineTo(this.x + edge_x, this.y);
 
@@ -59,14 +58,14 @@ export class Circle {
      * * It need to be at the tip of cos line, it looks nicer this way (play around to get what i mean);
      */
     this.ctx.beginPath();
-    this.ctx.strokeStyle = "red";
+    this.ctx.strokeStyle = SIN_COLOR;
     this.ctx.moveTo(this.x + edge_x, this.y);
     this.ctx.lineTo(this.x + edge_x, this.y + edge_y);
     this.ctx.stroke();
 
     // hypotenuse
     this.ctx.beginPath();
-    this.ctx.strokeStyle = "black";
+    this.ctx.strokeStyle = BACIC_COLOR;
     this.ctx.moveTo(this.x, this.y);
     this.ctx.lineTo(this.x + edge_x, this.y + edge_y);
     this.ctx.stroke();

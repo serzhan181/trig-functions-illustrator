@@ -6,4 +6,8 @@
     body {
         @apply bg-neutral-800 text-slate-200
     }
-}    
+}
+
+#theta::after {
+    content: "\00B0";
+}

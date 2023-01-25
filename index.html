@@ -12,8 +12,19 @@
       <h1 class="text-3xl font-mono font-semibold">Geometric representation of trig functions</h1>
     </header>
 
-    <main class="container mx-8 mt-4">
-      <canvas height="650" width="1238" id="unit" class="border border-neutral-900 rounded-sm bg-neutral-700"></canvas>
+    <main class="container mx-8 mt-4 flex gap-2">
+      <div>   
+      <canvas height="620" width="620" id="unit" class="border border-neutral-900 rounded-sm bg-neutral-700"></canvas>
+      <p>&theta; = <span id="theta">0</span></p>
+    </div>
+
+      <div>
+        <p>The 
+          <span class="text-red-600">red</span>
+           line represents <span class="text-red-600">sin x</span></p>
+        <p>The 
+          <span class="text-blue-600">blue</span> line represents <span class="text-blue-600">cos x</span></p>
+      </div>
     </main>
 
     <script type="module" src="/src/main.ts"></script>
