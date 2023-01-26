@@ -1,20 +1,15 @@
-import { Circle, getTheta } from "./lib/circle";
+import { Angle } from "./store/angle-store";
+import { Circle } from "./lib/circle";
 import "./global.css";
-import { rad_to_deg } from "./helpers/rad_to_deg";
+import { deg_to_rad, rad_to_deg } from "./helpers/convert_theta";
+import { INITIAL_CIRCLE_POS, PAUSE_SVG_PATH, PLAY_SVG_PATH } from "./constants";
+
+const angle = new Angle();
 
 export interface Pos {
   x: number;
   y: number;
 }
-
-const incrementTheta = getTheta(0);
-
-const CIRCLE_RAD = 300;
-
-const INITIAL_CIRCLE_POS: Pos = {
-  x: CIRCLE_RAD + 10,
-  y: CIRCLE_RAD + 10,
-};
 
 document.addEventListener("DOMContentLoaded", () => {
   main();
@@ -22,6 +17,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function main() {
   animate();
+
+  const theta_input_el = document.getElementById(
+    "theta-value"
+  ) as HTMLInputElement;
+  const animate_btn_img = document.getElementById(
+    "animate-btn-img"
+  ) as HTMLImageElement;
+
+  theta_input_el.addEventListener("input", (e) => {
+    // typescript... just... please.
+    const value = (e.target as HTMLInputElement).value;
+
+    angle.set_should_update = true;
+    angle.update(deg_to_rad(+value));
+    angle.set_should_update = false;
+    animate_btn_img.src = PLAY_SVG_PATH;
+  });
+
+  const animate_btn = document.getElementById("animate-btn");
+  animate_btn?.addEventListener("click", () => {
+    angle.set_should_update = !angle.shouldUpdate;
+    animate_btn_img.src = angle.shouldUpdate ? PAUSE_SVG_PATH : PLAY_SVG_PATH;
+  });
 }
 
 function animate() {
@@ -30,18 +48,21 @@ function animate() {
   if (!ctx) return null;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const cur_theta = incrementTheta();
   const circle = new Circle(ctx, {
     at: INITIAL_CIRCLE_POS,
     radius: 200,
-    theta: cur_theta,
+    theta: angle.value,
     with_right_triangle: true,
   });
   circle.draw();
 
   // Display angle in degrees;
   const theta_el = document.getElementById("theta") as HTMLSpanElement;
-  theta_el.innerText = rad_to_deg(cur_theta).toString();
+  theta_el.innerText = rad_to_deg(angle.value).toString();
+
+  angle.update(angle.value + 0.01);
 
   requestAnimationFrame(animate);
+
+  return 1;
 }

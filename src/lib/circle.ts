@@ -86,11 +86,3 @@ export class Circle {
     this.ctx.stroke();
   }
 }
-
-export function getTheta(theta: number) {
-  return function incrementTheta() {
-    if (theta >= 2 * Math.PI) theta = 0;
-
-    return (theta += 0.005);
-  };
-}
