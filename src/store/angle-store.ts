@@ -9,7 +9,7 @@ export class Angle {
 
   update(angle: number) {
     if (!this.shouldUpdate) return;
-    if (angle >= 2 * Math.PI) {
+    if (angle > 2 * Math.PI) {
       this.value = 0;
     } else {
       this.value = angle;
