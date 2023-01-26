@@ -1,5 +1,6 @@
-import { Circle, getTheta } from "./circle";
+import { Circle, getTheta } from "./lib/circle";
 import "./global.css";
+import { rad_to_deg } from "./helpers/rad_to_deg";
 
 export interface Pos {
   x: number;
@@ -20,26 +21,27 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function main() {
-  requestAnimationFrame(draw);
+  animate();
 }
 
-function draw() {
-  const canvas = document.getElementById("unit") as HTMLCanvasElement;
+function animate() {
+  const canvas = document.getElementById("canvas") as HTMLCanvasElement;
   const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Ctx is not defined.");
-  ctx.clearRect(0, 0, 1238, 650);
+  if (!ctx) return null;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const circle = new Circle(ctx, INITIAL_CIRCLE_POS, 300);
+  const cur_theta = incrementTheta();
+  const circle = new Circle(ctx, {
+    at: INITIAL_CIRCLE_POS,
+    radius: 200,
+    theta: cur_theta,
+    with_right_triangle: true,
+  });
   circle.draw();
-  circle.draw_center();
-  const incremented_theta = incrementTheta();
-  circle.point_at_angle(incremented_theta, true);
 
-  // Display the value of theta in terms of degrees;
-  const theta = document.getElementById("theta") as HTMLSpanElement;
-  theta.textContent = Math.floor(
-    (incremented_theta * 180) / Math.PI
-  ).toString();
+  // Display angle in degrees;
+  const theta_el = document.getElementById("theta") as HTMLSpanElement;
+  theta_el.innerText = rad_to_deg(cur_theta).toString();
 
-  window.requestAnimationFrame(draw);
+  requestAnimationFrame(animate);
 }
