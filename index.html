@@ -12,9 +12,9 @@
       <h1 class="text-3xl font-mono font-semibold">Geometric representation of trig functions</h1>
     </header>
 
-    <main class="container mx-8 mt-4 flex gap-2">
+    <main class="mx-8 mt-4 flex flex-col gap-2 items-center">
       <div class="flex flex-col gap-2">   
-      <canvas height="620" width="620" id="canvas" class="border border-neutral-900 rounded-sm bg-neutral-700"></canvas>
+      <canvas height="800" width="1280" id="circle-canvas" class="border border-neutral-900 rounded-sm bg-neutral-700"></canvas>
       <div class="flex gap-2">
       <button class="border border-slate-200 rounded-sm" id="animate-btn"><img id="animate-btn-img" src="/svgs/pause.svg"></button>
       <p>&theta; = <span id="theta">0</span></p>
@@ -26,13 +26,9 @@
       </div>
     </div>
 
-      <div>
-        <p>The 
-          <span class="text-red-600">red</span>
-           line represents <span class="text-red-600">sin x</span></p>
-        <p>The 
-          <span class="text-blue-600">blue</span> line represents <span class="text-blue-600">cos x</span></p>
-      </div>
+    <div>
+      <canvas height="800" width="1280" id="ellipse-canvas" class="border border-neutral-900 rounded-sm bg-neutral-700"></canvas>
+    </div>
     </main>
 
     <script type="module" src="/src/main.ts"></script>

@@ -1,0 +1,250 @@
+[1mdiff --git a/index.html b/index.html[m
+[1mindex 0170e4b..f4c9913 100644[m
+[1m--- a/index.html[m
+[1m+++ b/index.html[m
+[36m@@ -12,9 +12,9 @@[m
+       <h1 class="text-3xl font-mono font-semibold">Geometric representation of trig functions</h1>[m
+     </header>[m
+ [m
+[31m-    <main class="container mx-8 mt-4 flex gap-2">[m
+[32m+[m[32m    <main class="mx-8 mt-4 flex flex-col gap-2 items-center">[m
+       <div class="flex flex-col gap-2">   [m
+[31m-      <canvas height="620" width="620" id="canvas" class="border border-neutral-900 rounded-sm bg-neutral-700"></canvas>[m
+[32m+[m[32m      <canvas height="800" width="1280" id="circle-canvas" class="border border-neutral-900 rounded-sm bg-neutral-700"></canvas>[m
+       <div class="flex gap-2">[m
+       <button class="border border-slate-200 rounded-sm" id="animate-btn"><img id="animate-btn-img" src="/svgs/pause.svg"></button>[m
+       <p>&theta; = <span id="theta">0</span></p>[m
+[36m@@ -26,13 +26,9 @@[m
+       </div>[m
+     </div>[m
+ [m
+[31m-      <div>[m
+[31m-        <p>The [m
+[31m-          <span class="text-red-600">red</span>[m
+[31m-           line represents <span class="text-red-600">sin x</span></p>[m
+[31m-        <p>The [m
+[31m-          <span class="text-blue-600">blue</span> line represents <span class="text-blue-600">cos x</span></p>[m
+[31m-      </div>[m
+[32m+[m[32m    <div>[m
+[32m+[m[32m      <canvas height="800" width="1280" id="ellipse-canvas" class="border border-neutral-900 rounded-sm bg-neutral-700"></canvas>[m
+[32m+[m[32m    </div>[m
+     </main>[m
+ [m
+     <script type="module" src="/src/main.ts"></script>[m
+[1mdiff --git a/src/constants.ts b/src/constants.ts[m
+[1mindex dbde0b5..f45c5cd 100644[m
+[1m--- a/src/constants.ts[m
+[1m+++ b/src/constants.ts[m
+[36m@@ -1,10 +1,16 @@[m
+ import { Pos } from "./main";[m
+[32m+[m[32mimport colors from "tailwindcss/colors";[m
+ [m
+[31m-export const CIRCLE_RAD = 300;[m
+[31m-export const INITIAL_CIRCLE_POS: Pos = {[m
+[31m-  x: CIRCLE_RAD + 10,[m
+[31m-  y: CIRCLE_RAD + 10,[m
+[32m+[m[32mexport const CIRCLE_RAD = 350;[m
+[32m+[m[32mexport const CENTER: Pos = {[m
+[32m+[m[32m  x: 1280 / 2,[m
+[32m+[m[32m  y: 800 / 2,[m
+ };[m
+ [m
+ export const PLAY_SVG_PATH = "/svgs/play.svg";[m
+ export const PAUSE_SVG_PATH = "/svgs/pause.svg";[m
+[32m+[m
+[32m+[m[32mexport const SIN_COLOR = colors.red[600];[m
+[32m+[m[32mexport const COS_COLOR = colors.blue[600];[m
+[32m+[m[32mexport const PRIMARY_COLOR = colors.neutral[900];[m
+[32m+[m[32mexport const SECONDARY_COLOR = colors.orange[600];[m
+[1mdiff --git a/src/lib/circle.ts b/src/lib/circle.ts[m
+[1mindex f001db1..2c9fc66 100644[m
+[1m--- a/src/lib/circle.ts[m
+[1m+++ b/src/lib/circle.ts[m
+[36m@@ -1,9 +1,10 @@[m
+[32m+[m[32mimport {[m
+[32m+[m[32m  PRIMARY_COLOR,[m
+[32m+[m[32m  COS_COLOR,[m
+[32m+[m[32m  SIN_COLOR,[m
+[32m+[m[32m  SECONDARY_COLOR,[m
+[32m+[m[32m} from "./../constants";[m
+ import { Pos } from "../main";[m
+[31m-import colors from "tailwindcss/colors";[m
+[31m-[m
+[31m-const SIN_COLOR = colors.red[600];[m
+[31m-const COS_COLOR = colors.blue[600];[m
+[31m-const BACIC_COLOR = colors.neutral[900];[m
+ [m
+ type CircleConfig = {[m
+   at: Pos;[m
+[36m@@ -21,6 +22,7 @@[m [mexport class Circle {[m
+   with_right_triangle: boolean;[m
+   radius: number;[m
+   theta: number;[m
+[32m+[m[32m  show_theta?: boolean;[m
+ [m
+   constructor(private ctx: CanvasRenderingContext2D, cfg: CircleConfig) {[m
+     this.k = cfg.at.x;[m
+[36m@@ -33,17 +35,20 @@[m [mexport class Circle {[m
+ [m
+   draw() {[m
+     this.ctx.beginPath();[m
+[31m-    this.ctx.strokeStyle = BACIC_COLOR;[m
+[32m+[m[32m    this.ctx.strokeStyle = PRIMARY_COLOR;[m
+     this.ctx.arc(this.k, this.v, this.radius, 0, 2 * Math.PI);[m
+ [m
+     this.ctx.stroke();[m
+ [m
+     this.center_plot();[m
+     this.point_at_angle();[m
+[32m+[m
+[32m+[m[32m    this.plot_theta();[m
+   }[m
+ [m
+   private plot(x: number, y: number) {[m
+     this.ctx.beginPath();[m
+[32m+[m[32m    this.ctx.fillStyle = PRIMARY_COLOR;[m
+     this.ctx.arc(x, y, this.radius * 0.03, 0, 2 * Math.PI);[m
+     this.ctx.fill();[m
+   }[m
+[36m@@ -63,7 +68,7 @@[m [mexport class Circle {[m
+   private right_triangle(x_cor: number, y_cor: number) {[m
+     // radius line;[m
+     this.ctx.beginPath();[m
+[31m-    this.ctx.strokeStyle = BACIC_COLOR;[m
+[32m+[m[32m    this.ctx.strokeStyle = PRIMARY_COLOR;[m
+     this.ctx.moveTo(this.k, this.v);[m
+     this.ctx.lineTo(x_cor, y_cor);[m
+     this.ctx.stroke();[m
+[36m@@ -85,4 +90,25 @@[m [mexport class Circle {[m
+     this.ctx.lineTo(x_cor, y_cor);[m
+     this.ctx.stroke();[m
+   }[m
+[32m+[m
+[32m+[m[32m  private plot_theta() {[m
+[32m+[m[32m    const mini_radius = this.radius * 0.13;[m
+[32m+[m
+[32m+[m[32m    this.ctx.beginPath();[m
+[32m+[m[32m    this.ctx.strokeStyle = SECONDARY_COLOR;[m
+[32m+[m[32m    this.ctx.arc([m
+[32m+[m[32m      this.k,[m
+[32m+[m[32m      this.v,[m
+[32m+[m[32m      mini_radius,[m
+[32m+[m[32m      0,[m
+[32m+[m[32m      2 * Math.PI - this.theta,[m
+[32m+[m[32m      true[m
+[32m+[m[32m    );[m
+[32m+[m[32m    this.ctx.stroke();[m
+[32m+[m
+[32m+[m[32m    this.ctx.beginPath();[m
+[32m+[m[32m    this.ctx.font = "15px Arial";[m
+[32m+[m[32m    this.ctx.fillStyle = SECONDARY_COLOR;[m
+[32m+[m[32m    this.ctx.fillText("θ", this.k + 10, this.v + 20);[m
+[32m+[m[32m  }[m
+ }[m
+[1mdiff --git a/src/main.ts b/src/main.ts[m
+[1mindex fb31b1b..cdb3eb6 100644[m
+[1m--- a/src/main.ts[m
+[1m+++ b/src/main.ts[m
+[36m@@ -1,8 +1,9 @@[m
+[32m+[m[32mimport { Ellipse } from "./lib/ellipse";[m
+ import { Angle } from "./store/angle-store";[m
+ import { Circle } from "./lib/circle";[m
+ import "./global.css";[m
+ import { deg_to_rad, rad_to_deg } from "./helpers/convert_theta";[m
+[31m-import { INITIAL_CIRCLE_POS, PAUSE_SVG_PATH, PLAY_SVG_PATH } from "./constants";[m
+[32m+[m[32mimport { CENTER, CIRCLE_RAD, PAUSE_SVG_PATH, PLAY_SVG_PATH } from "./constants";[m
+ [m
+ const angle = new Angle();[m
+ [m
+[36m@@ -17,7 +18,62 @@[m [mdocument.addEventListener("DOMContentLoaded", () => {[m
+ [m
+ function main() {[m
+   animate();[m
+[32m+[m[32m  animate_ellipse();[m
+[32m+[m[32m  listeners();[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mfunction animate() {[m
+[32m+[m[32m  const canvas = document.getElementById("circle-canvas") as HTMLCanvasElement;[m
+[32m+[m[32m  const ctx = canvas.getContext("2d");[m
+[32m+[m[32m  if (!ctx) return null;[m
+[32m+[m[32m  ctx.clearRect(0, 0, canvas.width, canvas.height);[m
+[32m+[m
+[32m+[m[32m  // circle[m
+[32m+[m[32m  const circle = new Circle(ctx, {[m
+[32m+[m[32m    at: CENTER,[m
+[32m+[m[32m    radius: CIRCLE_RAD,[m
+[32m+[m[32m    theta: angle.value,[m
+[32m+[m[32m    with_right_triangle: true,[m
+[32m+[m[32m  });[m
+[32m+[m[32m  circle.draw();[m
+[32m+[m
+[32m+[m[32m  // Display angle in degrees;[m
+[32m+[m[32m  const theta_el = document.getElementById("theta") as HTMLSpanElement;[m
+[32m+[m[32m  theta_el.innerText = rad_to_deg(angle.value).toString();[m
+[32m+[m[32m  angle.update(angle.value + 0.01);[m
+[32m+[m
+[32m+[m[32m  requestAnimationFrame(animate);[m
+[32m+[m
+[32m+[m[32m  return 1;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mlet x_par = 0;[m
+[32m+[m[32mlet y_par = 0;[m
+[32m+[m
+[32m+[m[32mfunction animate_ellipse() {[m
+[32m+[m[32m  const canvas = document.getElementById("ellipse-canvas") as HTMLCanvasElement;[m
+[32m+[m[32m  const ctx = canvas.getContext("2d");[m
+[32m+[m[32m  if (!ctx) return null;[m
+[32m+[m[32m  ctx.clearRect(0, 0, canvas.width, canvas.height);[m
+[32m+[m
+[32m+[m[32m  const ellipse = new Ellipse(ctx, {[m
+[32m+[m[32m    at: CENTER,[m
+[32m+[m[32m    radiusX: 350,[m
+[32m+[m[32m    radiusY: 200,[m
+[32m+[m[32m  });[m
+[32m+[m[32m  ellipse.draw();[m
+ [m
+[32m+[m[32m  ellipse.plot_from_focus(x_par, y_par);[m
+[32m+[m
+[32m+[m[32m  x_par += 0.5;[m
+[32m+[m[32m  y_par -= 0.5;[m
+[32m+[m
+[32m+[m[32m  requestAnimationFrame(animate_ellipse);[m
+[32m+[m
+[32m+[m[32m  return 1;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mfunction listeners() {[m
+   const theta_input_el = document.getElementById([m
+     "theta-value"[m
+   ) as HTMLInputElement;[m
+[36m@@ -41,28 +97,3 @@[m [mfunction main() {[m
+     animate_btn_img.src = angle.shouldUpdate ? PAUSE_SVG_PATH : PLAY_SVG_PATH;[m
+   });[m
+ }[m
+[31m-[m
+[31m-function animate() {[m
+[31m-  const canvas = document.getElementById("canvas") as HTMLCanvasElement;[m
+[31m-  const ctx = canvas.getContext("2d");[m
+[31m-  if (!ctx) return null;[m
+[31m-  ctx.clearRect(0, 0, canvas.width, canvas.height);[m
+[31m-[m
+[31m-  const circle = new Circle(ctx, {[m
+[31m-    at: INITIAL_CIRCLE_POS,[m
+[31m-    radius: 200,[m
+[31m-    theta: angle.value,[m
+[31m-    with_right_triangle: true,[m
+[31m-  });[m
+[31m-  circle.draw();[m
+[31m-[m
+[31m-  // Display angle in degrees;[m
+[31m-  const theta_el = document.getElementById("theta") as HTMLSpanElement;[m
+[31m-  theta_el.innerText = rad_to_deg(angle.value).toString();[m
+[31m-[m
+[31m-  angle.update(angle.value + 0.01);[m
+[31m-[m
+[31m-  requestAnimationFrame(animate);[m
+[31m-[m
+[31m-  return 1;[m
+[31m-}[m

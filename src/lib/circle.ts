@@ -1,9 +1,10 @@
+import {
+  PRIMARY_COLOR,
+  COS_COLOR,
+  SIN_COLOR,
+  SECONDARY_COLOR,
+} from "./../constants";
 import { Pos } from "../main";
-import colors from "tailwindcss/colors";
-
-const SIN_COLOR = colors.red[600];
-const COS_COLOR = colors.blue[600];
-const BACIC_COLOR = colors.neutral[900];
 
 type CircleConfig = {
   at: Pos;
@@ -21,6 +22,7 @@ export class Circle {
   with_right_triangle: boolean;
   radius: number;
   theta: number;
+  show_theta?: boolean;
 
   constructor(private ctx: CanvasRenderingContext2D, cfg: CircleConfig) {
     this.k = cfg.at.x;
@@ -33,17 +35,20 @@ export class Circle {
 
   draw() {
     this.ctx.beginPath();
-    this.ctx.strokeStyle = BACIC_COLOR;
+    this.ctx.strokeStyle = PRIMARY_COLOR;
     this.ctx.arc(this.k, this.v, this.radius, 0, 2 * Math.PI);
 
     this.ctx.stroke();
 
     this.center_plot();
     this.point_at_angle();
+
+    this.plot_theta();
   }
 
   private plot(x: number, y: number) {
     this.ctx.beginPath();
+    this.ctx.fillStyle = PRIMARY_COLOR;
     this.ctx.arc(x, y, this.radius * 0.03, 0, 2 * Math.PI);
     this.ctx.fill();
   }
@@ -63,7 +68,7 @@ export class Circle {
   private right_triangle(x_cor: number, y_cor: number) {
     // radius line;
     this.ctx.beginPath();
-    this.ctx.strokeStyle = BACIC_COLOR;
+    this.ctx.strokeStyle = PRIMARY_COLOR;
     this.ctx.moveTo(this.k, this.v);
     this.ctx.lineTo(x_cor, y_cor);
     this.ctx.stroke();
@@ -84,5 +89,26 @@ export class Circle {
     this.ctx.moveTo(x_cor, this.v);
     this.ctx.lineTo(x_cor, y_cor);
     this.ctx.stroke();
+  }
+
+  private plot_theta() {
+    const mini_radius = this.radius * 0.13;
+
+    this.ctx.beginPath();
+    this.ctx.strokeStyle = SECONDARY_COLOR;
+    this.ctx.arc(
+      this.k,
+      this.v,
+      mini_radius,
+      0,
+      2 * Math.PI - this.theta,
+      true
+    );
+    this.ctx.stroke();
+
+    this.ctx.beginPath();
+    this.ctx.font = "15px Arial";
+    this.ctx.fillStyle = SECONDARY_COLOR;
+    this.ctx.fillText("θ", this.k + 10, this.v + 20);
   }
 }
