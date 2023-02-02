@@ -63,10 +63,10 @@ function animate_ellipse() {
   });
   ellipse.draw();
 
-  ellipse.plot_from_focus(x_par, y_par);
+  const { move_x, move_y } = ellipse.plot_from_focus(x_par, y_par);
 
-  x_par += 0.5;
-  y_par -= 0.5;
+  x_par += move_x;
+  y_par += move_y;
 
   requestAnimationFrame(animate_ellipse);
 

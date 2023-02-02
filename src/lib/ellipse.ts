@@ -49,7 +49,7 @@ export class Ellipse {
       this.foci[1][1] = -r + this.v;
     }
 
-    this.c = this.calculate_c_from_point(this.k, this.radiusY);
+    this.c = 2 * Math.max(this.radiusX, this.radiusY);
   }
 
   draw() {
@@ -87,16 +87,19 @@ export class Ellipse {
     const plot_x = focus_x + x;
     const plot_y = focus_y + y;
 
-    const local_c = this.calculate_c_from_point(plot_x, plot_y);
+    const local_c = this.calculate_point_from_foci(plot_x, plot_y);
 
     if (local_c >= this.c) {
-      this.plot(plot_x, plot_y, "red");
+      this.plot(focus_x - x, focus_y - y, "red");
+      console.log("collision");
+      return { move_x: 0.5, move_y: 0.5 };
     } else {
       this.plot(plot_x, plot_y);
+      return { move_x: 0.5, move_y: 0.5 };
     }
   }
 
-  private calculate_c_from_point(x: number, y: number) {
+  private calculate_point_from_foci(x: number, y: number) {
     const focus_1_x = this.foci[0][0];
     const focus_1_y = this.foci[0][1];
 
